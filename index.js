@@ -1,11 +1,18 @@
+var finalhandler = require('finalhandler')
 var WebSocketServer = require("websocket").server;
 var exec = require("child_process").exec;
 var os = require("os");
+var serveStatic = require('serve-static')
 
 var http = require("http");
 
-var server = http.createServer(function(request, response) {});
+var files = serveStatic('web', {'index': ['index.html']})
+
+var server = http.createServer(function(request, response) {
+      files(request, response, finalhandler(request, response))
+});
 server.listen(1889, function() {});
+
 
 wsServer = new WebSocketServer({
   httpServer: server
