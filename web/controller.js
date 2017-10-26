@@ -54,8 +54,8 @@
       } else if(width/height < 16/9) {
           height = width * 9/16;
       }
-      gc_control.style.width = width;
-      gc_control.style.height = height;
+      gc_control.style.width = width+'px';
+      gc_control.style.height = height+'px';
     }
     window.addEventListener('resize', onResize);
     onResize();
