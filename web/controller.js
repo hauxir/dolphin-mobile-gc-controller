@@ -37,77 +37,78 @@
         });
     }
 
-    $(window).resize(function() {
-        var gc_control = $(".gc-control");
-        var width = $(window).width();
-        var height = $(window).height();
-        var gc_width = width;
-        var gc_height = 9/16 * width;
-        if(width/height > 16/9) {
-            width = height * 16/9;
-        } else if(width/height < 16/9) {
-            height = width * 9/16;
-        }
-        gc_control.width(width);
-        gc_control.height(height);
-    });
-    $(window).resize();
+    // ELEMENT DEFINITIONS
 
+    var b = document.body;
+    var gc_control = document.querySelector('.gc-control');
+    var buttons = document.querySelectorAll('.gc-control div');
+    var mainpad = document.querySelector('.mainpad');
 
-    $(".gc-control div").on('touchend', function(e) {
+    function onResize() {
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+      var gc_width = width;
+      var gc_height = 9/16 * width;
+      if(width/height > 16/9) {
+          width = height * 16/9;
+      } else if(width/height < 16/9) {
+          height = width * 9/16;
+      }
+      gc_control.style.width = width;
+      gc_control.style.height = height;
+    }
+    window.addEventListener('resize', onResize);
+    onResize();
+
+    buttons.forEach(function(button) {
+      button.addEventListener('touchend', function(e) {
         e.preventDefault();
-        $(this).removeClass("pressed")
+        button.classList.remove('pressed');
+      })
     });
 
-    $(".mainpad").on('touchmove', function(e) {
-        e.preventDefault();
-        var touchobj = e.changedTouches[0];
-        console.log(touchobj.clientX, touchobj.clientY);
+    mainpad.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      var touchobj = e.changedTouches[0];
+      console.log(touchobj.clientX, touchobj.clientY);
     });
 
     function rectangleSelect(selector, x1, y1, x2, y2) {
-    var elements = [];
-    jQuery(selector).each(function() {
-        var $this = jQuery(this);
-        var offset = $this.offset();
-        var x = offset.left;
-        var y = offset.top;
-        var w = $this.width();
-        var h = $this.height();
-
-        if (x >= x1 
-        && y >= y1 
-        && x + w <= x2 
-        && y + h <= y2) {
-        // this element fits inside the selection rectangle
-        elements.push($this.get(0));
-        }
-    });
-    return elements;
+      var elements = Array.from(document.querySelectorAll(selector));
+      return elements.filter(function(element) {
+        var x = element.offsetLeft;
+        var y = element.offsetTop;
+        var w = element.offsetWidth;
+        var h = element.offsetHeight;
+        return (x >= x1 && y >= y1 && x + w <= x2 && y+h <= y2);
+      });
     }
 
-    document.body.addEventListener('touchstart', function(event) {
+    b.addEventListener('touchstart', function(event) {
         event.preventDefault();
-        var elements = event.targetTouches;
-        for(var i =0; i < event.touches.length; i++) {
-            var touch = event.touches[i];
-            var x = touch.clientX, y = touch.clientY, rx = touch.radiusX, ry = touch.radiusY;
+        var touches = Array.from(event.touches.length);
+        touches.forEach(function(touch) {
+          var x = touch.clientX;
+          var y = touch.clientY;
+          var rx = touch.radiusX;
+          var ry = touch.radiusY;
 
-            var x1 = x-rx;
-            var y1 = y-ry;
+          var x1 = x-rx;
+          var y1 = y-ry;
 
-            var x2 = x+rx;
-            var y2 = y+ry;
-            console.log(rectangleSelect(".gc-control div", x1, y1, x2, y2));
-        }
+          var x2 = x+rx;
+          var y2 = y+ry;
+          console.log(rectangleSelect(".gc-control div", x1, y1, x2, y2));
+        });
     }, false);
 
     function bind_button(id, button) {
-        $(id).on('touchstart', function(e) {
-            perform("press", controller_no, button);
+        var button = document.querySelector(id);
+        button.addEventListener('touchstart', function(e) {
+          perform("press", controller_no, button);
         });
-        $(id).on('touchend', function(e) {
-            perform("release", controller_no, button);
+        button.addEventListener('touchend', function(e) {
+          perform("release", controller_no, button);
         });
     }
 
