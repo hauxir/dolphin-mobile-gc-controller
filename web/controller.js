@@ -73,32 +73,36 @@
       console.log(touchobj.clientX, touchobj.clientY);
     });
 
-    function rectangleSelect(selector, x1, y1, x2, y2) {
+    function elementsIntersectingTouch(selector, cx, cy, rad) {
       var elements = Array.from(document.querySelectorAll(selector));
       return elements.filter(function(element) {
         var x = element.offsetLeft;
         var y = element.offsetTop;
         var w = element.offsetWidth;
         var h = element.offsetHeight;
-        return (x >= x1 && y >= y1 && x + w <= x2 && y+h <= y2);
+
+        var distX = Math.abs(cx - x - w / 2);
+        var distY = Math.abs(cy - y - h / 2);
+
+        if (distX > (w/2 + rad)) return false;
+        if (distY > (h/2 + rad)) return false;
+        if (distX <= (w/2)) return true;
+        if (distY <= (h/2)) return true;
+
+        var dx = distX-w/2;
+        var dy = distY-h/2;
+        return (dx*dx+dy*dy <= rad^2);
       });
     }
 
     b.addEventListener('touchstart', function(event) {
         event.preventDefault();
-        var touches = Array.from(event.touches.length);
+        var touches = Array.from(event.touches);
         touches.forEach(function(touch) {
           var x = touch.clientX;
           var y = touch.clientY;
-          var rx = touch.radiusX;
-          var ry = touch.radiusY;
-
-          var x1 = x-rx;
-          var y1 = y-ry;
-
-          var x2 = x+rx;
-          var y2 = y+ry;
-          console.log(rectangleSelect(".gc-control div", x1, y1, x2, y2));
+          var rad = touch.radiusX;
+          console.log(elementsIntersectingTouch(".gc-control div", x, y, rad));
         });
     }, false);
 
