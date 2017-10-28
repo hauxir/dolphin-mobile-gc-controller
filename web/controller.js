@@ -14,11 +14,47 @@
   var CPAD_WIDTH = 10.7;
   var CPAD_HEIGHT = 18.2;
 
-  var ws;
   var controller_no = Math.min(
     parseInt(window.location.hash.substr(1)) || 1,
     4
   );
+
+  window.onhashchange = function() {
+    window.location.reload();
+  };
+
+  function Controller(host, controller_no) {
+    this._controller_no = controller_no;
+    this._host = host;
+    this._ws = null;
+    this._connect = function() {
+      this._ws = new WebSocket("ws://" + this._host);
+    };
+    this._send = function(data) {
+      if (!this._ws || this._ws.readyState === this._ws.CLOSED) {
+        this._connect();
+        return;
+      } else if (this._ws.readyState !== this._ws.OPEN) {
+        // Ignore all commands until socket opens
+        return;
+      } else {
+        this._ws.send(data);
+      }
+    };
+    this._send_json = function(data) {
+      this._send(JSON.stringify(data));
+    };
+    this.perform = function(action, button, value) {
+      this._send_json({
+        controller: this._controller_no,
+        action: action,
+        button: button,
+        value: value
+      });
+    };
+  }
+
+  var controller_server = new Controller(window.location.host, controller_no);
 
   //Element definitions
   var controller = document.getElementById("controller");
@@ -26,49 +62,13 @@
   var mainpad = document.getElementById("mainpad");
   var cpad = document.getElementById("cpad");
 
-  window.onhashchange = function() {
-    window.location.reload();
-  };
-
-  function init_ws() {
-    ws = new WebSocket("ws://" + window.location.host);
-  }
-
-  init_ws();
-
-  function send(data) {
-    if (ws.readyState === ws.CLOSED) {
-      init_ws();
-      return;
-    } else if (ws.readyState !== ws.OPEN) {
-      // Ignore all commands until socket opens
-      return;
-    } else {
-      ws.send(data);
-    }
-  }
-
-  function send_json(data) {
-    send(JSON.stringify(data));
-  }
-
-  function perform(action, ctrlno, button, value) {
-    send_json({
-      controller: ctrlno,
-      action: action,
-      button: button,
-      value: value
-    });
-  }
-
   function maintain_aspect_ratio() {
     var width = window.innerWidth;
     var height = window.innerHeight;
-    var gc_width = width;
-    var gc_height = AR_HEIGHT / AR_WIDTH * width;
-    if (width / height > AR_WIDTH / AR_HEIGHT) {
+    var aspect_ratio = width / height;
+    if (aspect_ratio > AR_WIDTH / AR_HEIGHT) {
       width = height * AR_WIDTH / AR_HEIGHT;
-    } else if (width / height < AR_WIDTH / AR_HEIGHT) {
+    } else if (aspect_ratio < AR_WIDTH / AR_HEIGHT) {
       height = width * AR_HEIGHT / AR_WIDTH;
     }
     controller.style.width = width + "px";
@@ -83,8 +83,8 @@
     element.addEventListener("touchmove", function(e) {
       e.preventDefault();
       e.stopPropagation();
-      var bottom_left = [cx - rad, cy - rad * 16 / 9];
-      var top_right = [cx + rad, cy + rad * 16 / 9];
+      var bottom_left = [cx - rad, cy - rad * AR_WIDTH / AR_HEIGHT];
+      var top_right = [cx + rad, cy + rad * AR_WIDTH / AR_HEIGHT];
       var touchobj = e.changedTouches[0];
       var x_percentage = touchobj.clientX / window.innerWidth * 100 - width / 2;
       var y_percentage =
@@ -97,16 +97,14 @@
         Math.max(y_percentage, bottom_left[1]),
         top_right[1]
       );
-
       var pad_value = [
         (x_percentage - bottom_left[0]) / (top_right[0] - bottom_left[0]),
         Math.abs(
           (y_percentage - bottom_left[1]) / (top_right[1] - bottom_left[1]) - 1
         )
       ];
-      perform(
+      controller_server.perform(
         "set",
-        controller_no,
         pad_name,
         pad_value[0] + " " + pad_value[1]
       );
@@ -117,7 +115,7 @@
       e.preventDefault();
       element.style.left = cx + "%";
       element.style.top = cy + "%";
-      perform("set", controller_no, pad_name, 0.5 + " " + 0.5);
+      controller_server.perform("set", pad_name, 0.5 + " " + 0.5);
     });
     element.dispatchEvent(new Event("touchend"));
   }
@@ -163,8 +161,7 @@
       el.classList.remove("pressed");
     });
     touches.forEach(function(touch) {
-      var x = touch.clientX;
-      var y = touch.clientY;
+      var x = touch.clientX, y = touch.clientY;
       var rad = touch.radiusX;
       var touched_buttons = elements_intersecting_touch(
         "#buttons div",
@@ -179,19 +176,20 @@
     var currently_pressed = pressedButtons();
     pressed_before_touch.forEach(function(button) {
       if (currently_pressed.indexOf(button) == -1) {
-        perform("release", controller_no, button);
+        controller_server.perform("release", button);
       }
     });
     currently_pressed.forEach(function(button) {
       if (pressed_before_touch.indexOf(button) == -1) {
-        perform("press", controller_no, button);
+        controller_server.perform("press", button);
       }
     });
   }
 
-  controller.addEventListener("touchstart", touch_handler, false);
-  controller.addEventListener("touchend", touch_handler, false);
-  controller.addEventListener("touchmove", touch_handler, false);
+  ["touchstart", "touchend", "touchmove"].forEach(function(event_name) {
+    controller.addEventListener(event_name, touch_handler, false);
+  });
+
   init_pad(
     "main",
     mainpad,
