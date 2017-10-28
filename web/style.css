@@ -1,11 +1,22 @@
+html{
+    margin:0 !important;
+    padding:0 !important;
+    overflow: hidden;
+    background-color: #4a5199;
+    display: flex;
+    justify-content: center; /* align horizontal */
+    align-items: center; /* align vertical */
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-.pressed {
-    box-shadow: none !important;
-    filter: none !important;
-}
-.gc-control {
+    position: relative
+    padding: 0;
+    overflow: hidden;
+    margin: 0;
+    -webkit-overflow-scrolling: touch;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     height:100%;
     width:100%;
     max-height:100%;
@@ -14,36 +25,25 @@ body {
     margin: 0 auto;
     display: block;
 }
-.gc-control div {
+#buttons div, .mainpad_area, .cpad{
     position:absolute;
     box-shadow: 5px 5px 2.5px black;
-    cursor:pointer;
     font-size:16pt;
     display: flex;
     justify-content: center; /* align horizontal */
     align-items: center; /* align vertical */
 }
-.rbtn, .lbtn {
-    width:26.4%;
-    height:8.6%;
-    top:2.8%;
-    border-radius:5px;
-    background-color:#ceccd9;
+.pressed {
+    box-shadow: none !important;
+    filter: none !important;
 }
-.lbtn {
-    left:5.7%;
-}
-.rbtn {
-    right:5.7%;
-}
-.zbtn {
-    left:83.7%;
-    width:12.4%;
-    height:7.6%;
-    top:13.8%;
-    border-radius:5px;
-    background-color:#0884c2;
-    color:white;
+.cpad {
+    width: 10.7%;
+    height: 18.2%;
+    top: 75.1%;
+    left: 61%;
+    border-radius: 100%;
+    background-color: #f8e644;
 }
 .mainpad_area {
     background-color:none;
@@ -62,7 +62,29 @@ body {
     left:0;
     border-radius:100%;
 }
-.startbtn {
+#r, #l{
+    width:26.4%;
+    height:8.6%;
+    top:2.8%;
+    border-radius:5px;
+    background-color:#ceccd9;
+}
+#l {
+    left:5.7%;
+}
+#r {
+    right:5.7%;
+}
+#z {
+    left:83.7%;
+    width:12.4%;
+    height:7.6%;
+    top:13.8%;
+    border-radius:5px;
+    background-color:#0884c2;
+    color:white;
+}
+#start {
     width:5.6%;
     height:10.2%;
     top:38.5%;
@@ -70,7 +92,7 @@ body {
     border-radius:100%;
     background-color:#ceccd9;
 }
-.bbtn {
+#b {
     width:8.8%;
     height:16.5%;
     top:46.7%;
@@ -78,7 +100,7 @@ body {
     border-radius:100%;
     background-color :#d01a2c;
 }
-.abtn {
+#a {
     width: 14.3%;
     height: 26.2%;
     top: 30.2%;
@@ -87,38 +109,30 @@ body {
     background-color: #85d7d2;
     text-align:center;
 }
-.cpad {
-    width: 10.7%;
-    height: 18.2%;
-    top: 75.1%;
-    left: 61%;
-    border-radius: 100%;
-    background-color: #f8e644;
-}
-.dpadbtn {
+#dpadleft, #dpadright, #dpadup, #dpaddown {
     background-color:#ceccd9;
     width: 5.2%;
     height: 9%;
     border-radius:20%;
 }
-.dpadleft {
+#dpadleft {
     top: 78.5%;
     left: 20.2%;
 }
-.dpadright {
+#dpadright {
     top: 78.5%;
     left: 30.2%;
 }
-.dpadup {
+#dpadup {
     top: 69.5%;
     left: 25.3%;
 }
-.dpaddown {
+#dpaddown {
     top: 87.7%;
     left: 25.3%;
 }
 
-.ybtn {
+#y {
     background: url(ybtn.svg) no-repeat;
     width:13%;
     height:14.6%;
@@ -127,7 +141,7 @@ body {
     box-shadow:none !important;
     filter: drop-shadow( 5px 5px 5px #000  );
 }
-.xbtn {
+#x {
     background: url(xbtn.svg) no-repeat;
     width:8%;
     height:23.2%;
@@ -135,31 +149,4 @@ body {
     top:27%;
     box-shadow:none !important;
     filter: drop-shadow( 5px 5px 5px #000  );
-}
-
-img {
-    width:100%;
-}
-html, body {
-    margin:0 !important;
-    padding:0 !important;
-    overflow: hidden;
-    background-color: #4a5199;
-    display: flex;
-    justify-content: center; /* align horizontal */
-    align-items: center; /* align vertical */
-}
-html {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-body {
-    position: relative
-  height: 100%;
-  padding: 0;
-  overflow: auto;
-  margin: 0;
-  -webkit-overflow-scrolling: touch;
 }

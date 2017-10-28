@@ -9,7 +9,7 @@
 
     function init_ws() {
         ws = new WebSocket("ws://" + window.location.host);
-    };
+    }
 
     init_ws();
 
@@ -40,9 +40,8 @@
     // ELEMENT DEFINITIONS
 
     var b = document.body;
-    var gc_control = document.querySelector('.gc-control');
-    var buttons = document.querySelectorAll('.gc-control div');
-    var mainpad = document.querySelector('.mainpad');
+    var buttons = document.querySelectorAll("#buttons > div");
+    var mainpad = document.querySelector(".mainpad");
 
     function onResize() {
       var width = window.innerWidth;
@@ -54,20 +53,13 @@
       } else if(width/height < 16/9) {
           height = width * 9/16;
       }
-      gc_control.style.width = width+'px';
-      gc_control.style.height = height+'px';
+      b.style.width = width+"px";
+      b.style.height = height+"px";
     }
-    window.addEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
     onResize();
 
-    buttons.forEach(function(button) {
-      button.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        button.classList.remove('pressed');
-      })
-    });
-
-    mainpad.addEventListener('touchmove', function(e) {
+    mainpad.addEventListener("touchmove", function(e) {
       e.preventDefault();
       var touchobj = e.changedTouches[0];
       console.log(touchobj.clientX, touchobj.clientY);
@@ -91,44 +83,47 @@
 
         var dx = distX-w/2;
         var dy = distY-h/2;
-        return (dx*dx+dy*dy <= rad^2);
+        return ((dx*dx+dy*dy) <= rad^2);
       });
     }
 
-    b.addEventListener('touchstart', function(event) {
+    function updateTouch(event) {
         event.preventDefault();
         var touches = Array.from(event.touches);
+        var buttons = Array.from(document.querySelectorAll("#buttons div"));
+        function pressedButtons() {
+            return buttons.filter(function(button) {
+                return button.classList.contains("pressed");
+            }).map(function(button) {return button.id});
+        }
+        var pressed_before_touch = pressedButtons();
+        pressed_before_touch.forEach(function(button) {
+            var el = document.getElementById(button);
+            el.classList.remove("pressed");
+        });
         touches.forEach(function(touch) {
           var x = touch.clientX;
           var y = touch.clientY;
           var rad = touch.radiusX;
-          console.log(elementsIntersectingTouch(".gc-control div", x, y, rad));
+          var touched_buttons = elementsIntersectingTouch("#buttons div", x, y, rad);
+          touched_buttons.forEach(function(button) {
+              button.classList.add("pressed");
+          });
         });
-    }, false);
-
-    function bind_button(id, button) {
-        var button = document.querySelector(id);
-        button.addEventListener('touchstart', function(e) {
-          perform("press", controller_no, button);
+        var currently_pressed = pressedButtons();
+        pressed_before_touch.forEach(function(button) {
+            if(currently_pressed.indexOf(button) == -1) {
+                perform("release", controller_no, button);
+            }
         });
-        button.addEventListener('touchend', function(e) {
-          perform("release", controller_no, button);
+        currently_pressed.forEach(function(button) {
+            if(pressed_before_touch.indexOf(button) == -1) {
+                perform("press", controller_no, button);
+            }
         });
     }
 
-    /*
-    bind_button(".abtn", "a");
-    bind_button(".bbtn", "b");
-    bind_button(".xbtn", "x");
-    bind_button(".ybtn", "y");
-    bind_button(".lbtn", "l");
-    bind_button(".rbtn", "r");
-    bind_button(".zbtn", "z");
-    bind_button(".dpadup", "d_up");
-    bind_button(".dpaddown", "d_down");
-    bind_button(".dpadleft", "d_left");
-    bind_button(".dpadright", "d_right");
-    bind_button(".startbtn", "start");
-    */
-
+    b.addEventListener("touchstart", updateTouch, false);
+    b.addEventListener("touchend", updateTouch, false);
+    b.addEventListener("touchmove", updateTouch, false);
 })();
