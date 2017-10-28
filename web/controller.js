@@ -122,7 +122,7 @@
     element.dispatchEvent(new Event("touchend"));
   }
 
-  function elementsIntersectingTouch(selector, cx, cy, rad) {
+  function elements_intersecting_touch(selector, cx, cy, rad) {
     var elements = Array.from(document.querySelectorAll(selector));
     return elements.filter(function(element) {
       var x = element.offsetLeft;
@@ -166,7 +166,7 @@
       var x = touch.clientX;
       var y = touch.clientY;
       var rad = touch.radiusX;
-      var touched_buttons = elementsIntersectingTouch(
+      var touched_buttons = elements_intersecting_touch(
         "#buttons div",
         x - controller.offsetLeft,
         y - controller.offsetTop,

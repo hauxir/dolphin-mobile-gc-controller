@@ -52,11 +52,11 @@ html, body{
     border-radius:5px;
     background-color:#ceccd9;
 }
-#l {
-    left:5.7%;
-}
 #r {
     right:5.7%;
+}
+#l {
+    left:5.7%;
 }
 #z {
     left:83.7%;
