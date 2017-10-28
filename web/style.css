@@ -1,16 +1,16 @@
-html{
+html, body{
     margin:0 !important;
     padding:0 !important;
     overflow: hidden;
-    background-color: #4a5199;
     display: flex;
-    justify-content: center; /* align horizontal */
-    align-items: center; /* align vertical */
+    justify-content: center;
+    align-items: center;
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background-color: #4a5199;
 }
-body {
+#controller {
     position: relative
     padding: 0;
     overflow: hidden;
@@ -25,13 +25,13 @@ body {
     margin: 0 auto;
     display: block;
 }
-#buttons div, .mainpad_area, .cpad{
-    position:absolute;
+#buttons div, .mainpad, .cpad{
+    position: absolute;
     box-shadow: 5px 5px 2.5px black;
     font-size:16pt;
     display: flex;
-    justify-content: center; /* align horizontal */
-    align-items: center; /* align vertical */
+    justify-content: center;
+    align-items: center;
 }
 .pressed {
     box-shadow: none !important;
@@ -46,12 +46,12 @@ body {
     background-color: #f8e644;
 }
 .mainpad_area {
+    position: absolute;
     background-color:none;
     width:14.5%;
     height:25.5%;
     top:28.5%;
     left:8.5%;
-    box-shadow: none !important;
     border: 1px solid red;
 }
 .mainpad {
@@ -131,7 +131,6 @@ body {
     top: 87.7%;
     left: 25.3%;
 }
-
 #y {
     background: url(ybtn.svg) no-repeat;
     width:13%;
