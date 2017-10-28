@@ -24,24 +24,9 @@ wsServer.on("request", function(request) {
     if (message.type === "utf8") {
       var json = JSON.parse(message.utf8Data);
       var echostring = json.action + " " + json.button;
-
-      // Hack to enable controlling the mainpad with basic U D R L commands, remove soon
-      if (json.button == "left") {
-        echostring = "set main 0 0.5";
-      } else if (json.button == "right") {
-        echostring = "set main 1 0.5";
-      } else if (json.button == "up") {
-        echostring = "set main 0.5 1";
-      } else if (json.button == "down") {
-        echostring = "set main 0.5 0";
+      if(json.value) {
+        echostring = echostring + " " + json.value
       }
-      if (
-        ["up", "down", "left", "right"].indexOf(json.button) != -1 &&
-        json.action == "release"
-      ) {
-        echostring = "set main 0.5 0.5";
-      }
-
 
       exec(
         "echo '" +

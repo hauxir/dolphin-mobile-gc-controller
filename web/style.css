@@ -38,28 +38,11 @@ html, body{
     filter: none !important;
 }
 .cpad {
-    width: 10.7%;
-    height: 18.2%;
-    top: 75.1%;
-    left: 61%;
     border-radius: 100%;
     background-color: #f8e644;
 }
-.mainpad_area {
-    position: absolute;
-    background-color:none;
-    width:14.5%;
-    height:25.5%;
-    top:28.5%;
-    left:8.5%;
-    border: 1px solid red;
-}
 .mainpad {
     background-color:#B5B3C0;
-    width: 80%;
-    height:80%;
-    top:0;
-    left:0;
     border-radius:100%;
 }
 #r, #l{
