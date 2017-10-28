@@ -10,6 +10,10 @@ html, body{
     overflow: hidden;
     background-color: #4a5199;
 }
+.pressed {
+    box-shadow: none !important;
+    filter: none !important;
+}
 #controller {
     position: relative
     padding: 0;
@@ -25,7 +29,7 @@ html, body{
     margin: 0 auto;
     display: block;
 }
-#buttons div, .mainpad, .cpad{
+#buttons div, #mainpad, #cpad{
     position: absolute;
     box-shadow: 5px 5px 2.5px black;
     font-size:16pt;
@@ -33,15 +37,11 @@ html, body{
     justify-content: center;
     align-items: center;
 }
-.pressed {
-    box-shadow: none !important;
-    filter: none !important;
-}
-.cpad {
+#cpad {
     border-radius: 100%;
     background-color: #f8e644;
 }
-.mainpad {
+#mainpad {
     background-color:#B5B3C0;
     border-radius:100%;
 }

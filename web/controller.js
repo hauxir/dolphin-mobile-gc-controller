@@ -9,6 +9,12 @@
     4
   );
 
+  //Element definitions
+  var controller = document.getElementById("controller");
+  var buttons = document.querySelectorAll("#buttons > div");
+  var mainpad = document.getElementById("mainpad");
+  var cpad = document.getElementById("cpad");
+
   function init_ws() {
     ws = new WebSocket("ws://" + window.location.host);
   }
@@ -40,34 +46,6 @@
     });
   }
 
-  // ELEMENT DEFINITIONS
-
-  var b = document.body;
-  var controller = document.getElementById("controller");
-  var buttons = document.querySelectorAll("#buttons > div");
-
-  var mainpad = document.querySelector(".mainpad");
-  var mainpad_center = [12, 30];
-  var mainpad_dimensions = [11.6, 20.4];
-  mainpad.style.width = mainpad_dimensions[0] + "%";
-  mainpad.style.height = mainpad_dimensions[1] + "%";
-
-  function resetMainPad() {
-    mainpad.style.left = mainpad_center[0] + "%";
-    mainpad.style.top = mainpad_center[1] + "%";
-  }
-
-  var cpad = document.querySelector(".cpad");
-  var cpad_center = [61, 75];
-  var cpad_dimensions = [10.7, 18.2];
-  cpad.style.width = cpad_dimensions[0] + "%";
-  cpad.style.height = cpad_dimensions[1] + "%";
-
-  function resetCPad() {
-    cpad.style.left = cpad_center[0] + "%";
-    cpad.style.top = cpad_center[1] + "%";
-  }
-
   function onResize() {
     var width = window.innerWidth;
     var height = window.innerHeight;
@@ -80,22 +58,13 @@
     }
     controller.style.width = width + "px";
     controller.style.height = height + "px";
-    resetMainPad();
-    resetCPad();
   }
   window.addEventListener("resize", onResize);
   onResize();
 
-  function addPadListener(
-    element,
-    cx,
-    cy,
-    rad,
-    width,
-    height,
-    ctrl_name,
-    reset_cb
-  ) {
+  function init_pad(pad_name, element, cx, cy, rad, width, height) {
+    element.style.width = width + "%";
+    element.style.height = height + "%";
     element.addEventListener("touchmove", function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -103,7 +72,8 @@
       var top_right = [cx + rad, cy + rad * 16 / 9];
       var touchobj = e.changedTouches[0];
       var x_percentage = touchobj.clientX / window.innerWidth * 100 - width / 2;
-      var y_percentage = touchobj.clientY / window.innerHeight * 100 - height / 2;
+      var y_percentage =
+        touchobj.clientY / window.innerHeight * 100 - height / 2;
       x_percentage = Math.min(
         Math.max(x_percentage, bottom_left[0]),
         top_right[0]
@@ -113,7 +83,7 @@
         top_right[1]
       );
 
-      var pad_values = [
+      var pad_value = [
         (x_percentage - bottom_left[0]) / (top_right[0] - bottom_left[0]),
         Math.abs(
           (y_percentage - bottom_left[1]) / (top_right[1] - bottom_left[1]) - 1
@@ -122,40 +92,20 @@
       perform(
         "set",
         controller_no,
-        ctrl_name,
-        pad_values[0] + " " + pad_values[1]
+        pad_name,
+        pad_value[0] + " " + pad_value[1]
       );
       element.style.top = y_percentage + "%";
       element.style.left = x_percentage + "%";
     });
     element.addEventListener("touchend", function(e) {
       e.preventDefault();
-      reset_cb();
-      perform("set", controller_no, ctrl_name, 0.5 + " " + 0.5);
+      element.style.left = cx + "%";
+      element.style.top = cy + "%";
+      perform("set", controller_no, pad_name, 0.5 + " " + 0.5);
     });
+    element.dispatchEvent(new Event("touchend"));
   }
-
-  addPadListener(
-    mainpad,
-    mainpad_center[0],
-    mainpad_center[1],
-    4,
-    mainpad_dimensions[0],
-    mainpad_dimensions[1],
-    "main",
-    resetMainPad
-  );
-
-  addPadListener(
-    cpad,
-    cpad_center[0],
-    cpad_center[1],
-    2,
-    cpad_dimensions[0],
-    cpad_dimensions[1],
-    "c",
-    resetCPad
-  );
 
   function elementsIntersectingTouch(selector, cx, cy, rad) {
     var elements = Array.from(document.querySelectorAll(selector));
@@ -179,7 +129,7 @@
     });
   }
 
-  function updateTouch(event) {
+  function touch_handler(event) {
     event.preventDefault();
     var touches = Array.from(event.touches);
     var buttons = Array.from(document.querySelectorAll("#buttons div"));
@@ -224,7 +174,9 @@
     });
   }
 
-  controller.addEventListener("touchstart", updateTouch, false);
-  controller.addEventListener("touchend", updateTouch, false);
-  controller.addEventListener("touchmove", updateTouch, false);
+  controller.addEventListener("touchstart", touch_handler, false);
+  controller.addEventListener("touchend", touch_handler, false);
+  controller.addEventListener("touchmove", touch_handler, false);
+  init_pad("main", mainpad, 12, 30, 4, 11.6, 20.4);
+  init_pad("c", cpad, 61, 75, 2, 10.7, 18.2);
 })();
