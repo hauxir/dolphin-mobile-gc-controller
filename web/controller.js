@@ -1,7 +1,18 @@
 (function() {
-  window.onhashchange = function() {
-    window.location.reload();
-  };
+  var AR_WIDTH = 16;
+  var AR_HEIGHT = 9;
+
+  var MAINPAD_CENTER_X = 12;
+  var MAINPAD_CENTER_Y = 30;
+  var MAINPAD_RADIUS = 4;
+  var MAINPAD_WIDTH = 11.6;
+  var MAINPAD_HEIGHT = 20.4;
+
+  var CPAD_CENTER_X = 61;
+  var CPAD_CENTER_Y = 75;
+  var CPAD_RADIUS = 2;
+  var CPAD_WIDTH = 10.7;
+  var CPAD_HEIGHT = 18.2;
 
   var ws;
   var controller_no = Math.min(
@@ -14,6 +25,10 @@
   var buttons = document.querySelectorAll("#buttons > div");
   var mainpad = document.getElementById("mainpad");
   var cpad = document.getElementById("cpad");
+
+  window.onhashchange = function() {
+    window.location.reload();
+  };
 
   function init_ws() {
     ws = new WebSocket("ws://" + window.location.host);
@@ -46,21 +61,21 @@
     });
   }
 
-  function onResize() {
+  function maintain_aspect_ratio() {
     var width = window.innerWidth;
     var height = window.innerHeight;
     var gc_width = width;
-    var gc_height = 9 / 16 * width;
-    if (width / height > 16 / 9) {
-      width = height * 16 / 9;
-    } else if (width / height < 16 / 9) {
-      height = width * 9 / 16;
+    var gc_height = AR_HEIGHT / AR_WIDTH * width;
+    if (width / height > AR_WIDTH / AR_HEIGHT) {
+      width = height * AR_WIDTH / AR_HEIGHT;
+    } else if (width / height < AR_WIDTH / AR_HEIGHT) {
+      height = width * AR_HEIGHT / AR_WIDTH;
     }
     controller.style.width = width + "px";
     controller.style.height = height + "px";
   }
-  window.addEventListener("resize", onResize);
-  onResize();
+  window.addEventListener("resize", maintain_aspect_ratio);
+  maintain_aspect_ratio();
 
   function init_pad(pad_name, element, cx, cy, rad, width, height) {
     element.style.width = width + "%";
@@ -177,6 +192,22 @@
   controller.addEventListener("touchstart", touch_handler, false);
   controller.addEventListener("touchend", touch_handler, false);
   controller.addEventListener("touchmove", touch_handler, false);
-  init_pad("main", mainpad, 12, 30, 4, 11.6, 20.4);
-  init_pad("c", cpad, 61, 75, 2, 10.7, 18.2);
+  init_pad(
+    "main",
+    mainpad,
+    MAINPAD_CENTER_X,
+    MAINPAD_CENTER_Y,
+    MAINPAD_RADIUS,
+    MAINPAD_WIDTH,
+    MAINPAD_HEIGHT
+  );
+  init_pad(
+    "c",
+    cpad,
+    CPAD_CENTER_X,
+    CPAD_CENTER_Y,
+    CPAD_RADIUS,
+    CPAD_WIDTH,
+    CPAD_HEIGHT
+  );
 })();
