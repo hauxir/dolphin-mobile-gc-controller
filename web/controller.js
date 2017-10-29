@@ -1,30 +1,36 @@
 (function() {
+  var BUTTONS = [
+    "a",
+    "b",
+    "x",
+    "y",
+    "z",
+    "r",
+    "l",
+    "start",
+    "dpadup",
+    "dpaddown",
+    "dpadleft",
+    "dpadright"
+  ];
+  var PADS = ["main", "c"];
   var AR_WIDTH = 16;
   var AR_HEIGHT = 9;
 
-  var MAINPAD_CENTER_X = 12;
-  var MAINPAD_CENTER_Y = 30;
-  var MAINPAD_RADIUS = 4;
-  var MAINPAD_WIDTH = 11.6;
-  var MAINPAD_HEIGHT = 20.4;
+  var MAINPAD_CENTER_X = 12,
+    MAINPAD_CENTER_Y = 30,
+    MAINPAD_RADIUS = 4,
+    MAINPAD_WIDTH = 11.6,
+    MAINPAD_HEIGHT = 20.4;
 
-  var CPAD_CENTER_X = 61;
-  var CPAD_CENTER_Y = 75;
-  var CPAD_RADIUS = 2;
-  var CPAD_WIDTH = 10.7;
-  var CPAD_HEIGHT = 18.2;
+  var CPAD_CENTER_X = 61,
+    CPAD_CENTER_Y = 75,
+    CPAD_RADIUS = 2,
+    CPAD_WIDTH = 10.7,
+    CPAD_HEIGHT = 18.2;
 
-  var controller_no = Math.min(
-    parseInt(window.location.hash.substr(1)) || 1,
-    4
-  );
-
-  window.onhashchange = function() {
-    window.location.reload();
-  };
-
-  function Controller(host, controller_no) {
-    this._controller_no = controller_no;
+  function ControllerClient(host) {
+    this._controller_no = 1;
     this._host = host;
     this._ws = null;
     this._connect = function() {
@@ -44,17 +50,34 @@
     this._send_json = function(data) {
       this._send(JSON.stringify(data));
     };
-    this.perform = function(action, button, value) {
+    this._perform = function(action, input_name, value) {
       this._send_json({
         controller: this._controller_no,
         action: action,
-        button: button,
+        input_name: input_name,
         value: value
       });
     };
+    var self = this;
+    BUTTONS.forEach(function(button) {
+      self["press_" + button] = function() {
+        self._perform("press", button);
+      };
+      self["release_" + button] = function() {
+        self._perform("release", button);
+      };
+    });
+    PADS.forEach(function(pad_name) {
+      self["set_pad_" + pad_name] = function(x, y) {
+        self._perform("set", pad_name, x + " " + y);
+      };
+    });
+    this.set_controller = function(controller_no) {
+      this._controller_no = controller_no;
+    };
   }
 
-  var controller_server = new Controller(window.location.host, controller_no);
+  var controller_client = new ControllerClient(window.location.host);
 
   //Element definitions
   var controller = document.getElementById("controller");
@@ -74,8 +97,6 @@
     controller.style.width = width + "px";
     controller.style.height = height + "px";
   }
-  window.addEventListener("resize", maintain_aspect_ratio);
-  maintain_aspect_ratio();
 
   function init_pad(pad_name, element, cx, cy, rad, width, height) {
     element.style.width = width + "%";
@@ -103,10 +124,9 @@
           (y_percentage - bottom_left[1]) / (top_right[1] - bottom_left[1]) - 1
         )
       ];
-      controller_server.perform(
-        "set",
-        pad_name,
-        pad_value[0] + " " + pad_value[1]
+      controller_client["set_pad_" + pad_name](
+        pad_value[0].toFixed(3),
+        pad_value[1].toFixed(3)
       );
       element.style.top = y_percentage + "%";
       element.style.left = x_percentage + "%";
@@ -115,7 +135,7 @@
       e.preventDefault();
       element.style.left = cx + "%";
       element.style.top = cy + "%";
-      controller_server.perform("set", pad_name, 0.5 + " " + 0.5);
+      controller_client["set_pad_" + pad_name](0.5, 0.5);
     });
     element.dispatchEvent(new Event("touchend"));
   }
@@ -148,11 +168,11 @@
     var buttons = Array.from(document.querySelectorAll("#buttons div"));
     function pressedButtons() {
       return buttons
-        .filter(function(button) {
-          return button.classList.contains("pressed");
+        .filter(function(el) {
+          return el.classList.contains("pressed");
         })
-        .map(function(button) {
-          return button.id;
+        .map(function(el) {
+          return el.id;
         });
     }
     var pressed_before_touch = pressedButtons();
@@ -161,7 +181,8 @@
       el.classList.remove("pressed");
     });
     touches.forEach(function(touch) {
-      var x = touch.clientX, y = touch.clientY;
+      var x = touch.clientX,
+        y = touch.clientY;
       var rad = touch.radiusX;
       var touched_buttons = elements_intersecting_touch(
         "#buttons div",
@@ -169,20 +190,22 @@
         y - controller.offsetTop,
         rad
       );
-      touched_buttons.forEach(function(button) {
-        button.classList.add("pressed");
+      touched_buttons.forEach(function(el) {
+        el.classList.add("pressed");
       });
     });
     var currently_pressed = pressedButtons();
-    pressed_before_touch.forEach(function(button) {
-      if (currently_pressed.indexOf(button) == -1) {
-        controller_server.perform("release", button);
-      }
+    var buttons_to_release = pressed_before_touch.filter(function(button) {
+      return currently_pressed.indexOf(button) == -1;
     });
-    currently_pressed.forEach(function(button) {
-      if (pressed_before_touch.indexOf(button) == -1) {
-        controller_server.perform("press", button);
-      }
+    var buttons_to_press = currently_pressed.filter(function(button) {
+      return pressed_before_touch.indexOf(button) == -1;
+    });
+    buttons_to_release.forEach(function(button) {
+      controller_client["release_" + button]();
+    });
+    buttons_to_press.forEach(function(button) {
+      controller_client["press_" + button]();
     });
   }
 
@@ -208,4 +231,15 @@
     CPAD_WIDTH,
     CPAD_HEIGHT
   );
+
+  window.onhashchange = function() {
+    var controller_no = Math.min(
+      parseInt(window.location.hash.substr(1)) || 1,
+      4
+    );
+    controller_client.set_controller(controller_no);
+  };
+  window.dispatchEvent(new Event("hashchange"));
+  window.addEventListener("resize", maintain_aspect_ratio);
+  window.dispatchEvent(new Event("resize"));
 })();
