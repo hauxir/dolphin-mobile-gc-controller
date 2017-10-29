@@ -233,6 +233,8 @@
       parseInt(window.location.hash.substr(1)) || 1,
       4
     );
+    var controller_colors = ["blue","orange","red","green"];
+    document.body.className = controller_colors[controller_no-1];
     controller_client.set_controller(controller_no);
   });
   window.dispatchEvent(new Event("hashchange"));

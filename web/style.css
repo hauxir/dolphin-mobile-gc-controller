@@ -8,7 +8,18 @@ html, body{
     height: 100%;
     width: 100%;
     overflow: hidden;
-    background-color: #4a5199;
+}
+.blue {
+  background-color: #4a5199;
+}
+.orange {
+  background-color: #ff9400;
+}
+.red {
+  background-color: #fc4e47;
+}
+.green {
+  background-color: #00a647;
 }
 .pressed {
     box-shadow: none !important;
