@@ -77,13 +77,8 @@
     };
   }
 
+  var controller_el = document.getElementById("controller");
   var controller_client = new ControllerClient(window.location.host);
-
-  //Element definitions
-  var controller = document.getElementById("controller");
-  var buttons = document.querySelectorAll("#buttons > div");
-  var mainpad = document.getElementById("mainpad");
-  var cpad = document.getElementById("cpad");
 
   function maintain_aspect_ratio() {
     var width = window.innerWidth;
@@ -94,8 +89,8 @@
     } else if (aspect_ratio < AR_WIDTH / AR_HEIGHT) {
       height = width * AR_HEIGHT / AR_WIDTH;
     }
-    controller.style.width = width + "px";
-    controller.style.height = height + "px";
+    controller_el.style.width = width + "px";
+    controller_el.style.height = height + "px";
   }
 
   function init_pad(pad_name, element, cx, cy, rad, width, height) {
@@ -186,8 +181,8 @@
       var rad = touch.radiusX;
       var touched_buttons = elements_intersecting_touch(
         "#buttons div",
-        x - controller.offsetLeft,
-        y - controller.offsetTop,
+        x - controller_el.offsetLeft,
+        y - controller_el.offsetTop,
         rad
       );
       touched_buttons.forEach(function(el) {
@@ -210,21 +205,22 @@
   }
 
   ["touchstart", "touchend", "touchmove"].forEach(function(event_name) {
-    controller.addEventListener(event_name, touch_handler, false);
+    controller_el.addEventListener(event_name, touch_handler, false);
   });
 
   init_pad(
     "main",
-    mainpad,
+    document.getElementById("mainpad"),
     MAINPAD_CENTER_X,
     MAINPAD_CENTER_Y,
     MAINPAD_RADIUS,
     MAINPAD_WIDTH,
     MAINPAD_HEIGHT
   );
+
   init_pad(
     "c",
-    cpad,
+    document.getElementById("cpad"),
     CPAD_CENTER_X,
     CPAD_CENTER_Y,
     CPAD_RADIUS,
@@ -232,14 +228,15 @@
     CPAD_HEIGHT
   );
 
-  window.onhashchange = function() {
+  window.addEventListener("hashchange", function() {
     var controller_no = Math.min(
       parseInt(window.location.hash.substr(1)) || 1,
       4
     );
     controller_client.set_controller(controller_no);
-  };
+  });
   window.dispatchEvent(new Event("hashchange"));
+
   window.addEventListener("resize", maintain_aspect_ratio);
   window.dispatchEvent(new Event("resize"));
 })();
