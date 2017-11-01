@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dolphin WebSocket GameCube Controller Server</title>
+    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <form class="form-signin">
+            <h2 class="form-signin-heading">Start Controller server</h2><label class="sr-only" for="port">Port</label> <input class="form-control" id="port" placeholder="Server port" required="" type="number" value="1889"> <button class="btn btn-lg btn-primary btn-block" id="start" type="submit">Start server</button>
+        </form>
+    </div>
+    <script>
+         var _startServer = require('./server.js');
+         var start_button = document.getElementById("start");
+         start_button.addEventListener("click", function(e) {
+           e.preventDefault();
+           var port = document.getElementById("port").value;
+             if(!isNaN(parseInt(port))) {
+                 _startServer(port, function(host, port) {
+                     console.log("SUCCESS", host, port);
+                 }, function(e) {
+                     console.log("ERR", e);
+                 });
+             }
+         });
+    </script>
+</body>
+</html>
