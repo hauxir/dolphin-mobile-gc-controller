@@ -2,20 +2,21 @@ var finalhandler = require("finalhandler");
 var WebSocketServer = require("websocket").server;
 var exec = require("child_process").exec;
 var os = require("os");
+var stoppable = require("stoppable");
 var serveStatic = require("serve-static");
 var http = require("http");
 
 module.exports = function (port, successcb, errcb) {
     var files = serveStatic("web", { index: ["index.html"] });
 
-    var server = http.createServer(function(request, response) {
+    var server = stoppable(http.createServer(function(request, response) {
         files(request, response, finalhandler(request, response));
-    });
+    }));
 
     server.listen(port, function() {
         var ip = require("ip");
         console.log("Listening on http://" + ip.address() + (port == 80 ? '' : ":" + port));
-        successcb && successcb(ip, port);
+        successcb && successcb(ip.address(), port);
     });
 
     server.on('error', function (e) {
@@ -55,4 +56,5 @@ module.exports = function (port, successcb, errcb) {
             }
         });
     });
+    return server;
 }

@@ -4,27 +4,86 @@
     <meta charset="UTF-8">
     <title>Dolphin WebSocket GameCube Controller Server</title>
     <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+iframe {
+    width:40%;
+    display:inline-block;
+}
+#controllers {
+    margin-top:10px;
+    width:100%;
+    display:block;
+        text-align:center;
+}
+    </style>
 </head>
 <body>
     <div class="container">
-        <form class="form-signin">
-            <h2 class="form-signin-heading">Start Controller server</h2><label class="sr-only" for="port">Port</label> <input class="form-control" id="port" placeholder="Server port" required="" type="number" value="1889"> <button class="btn btn-lg btn-primary btn-block" id="start" type="submit">Start server</button>
+        <span id="notstarted">
+        <form>
+            <h2>
+                Start Controller server
+            </h2>
+            <label for="port">Port</label>
+            <input
+                class="form-control"
+                id="port"
+                placeholder="Server port"
+                required=""
+                type="number"
+                value="1889"
+            >
+            <div class="alert alert-danger" id="error">
+                  Failed to start server!
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" id="start" type="submit">
+                Start server
+            </button>
         </form>
+        </span>
+        <span id="started">
+            <h2>Server started on <a href="" id="hoststring"></a></h2>
+            <input type="button" class="form-control btn-primary" id="stop" value="Stop Server"/>
+            <div id="controllers">
+            <iframe src="web/index.html#1" frameBorder="0"></iframe>
+            <iframe src="web/index.html#2" frameBorder="0"></iframe>
+            <iframe src="web/index.html#3" frameBorder="0"></iframe>
+            <iframe src="web/index.html#4" frameBorder="0"></iframe>
+            </div>
+        </span>
     </div>
     <script>
+(function() {
+         document.getElementById("started").style.display = "none";
+         document.getElementById("error").style.display = "none";
          var _startServer = require('./server.js');
          var start_button = document.getElementById("start");
+         var stop_button = document.getElementById("stop");
+         var server;
          start_button.addEventListener("click", function(e) {
            e.preventDefault();
            var port = document.getElementById("port").value;
              if(!isNaN(parseInt(port))) {
-                 _startServer(port, function(host, port) {
-                     console.log("SUCCESS", host, port);
+                 server = _startServer(port, function(host, port) {
+                     document.getElementById("notstarted").style.display = "none";
+                     document.getElementById("error").style.display = "none";
+                     document.getElementById("started").style.display = "block";
+                     document.getElementById("hoststring").innerHTML = "http://" + host + ":" + port;
                  }, function(e) {
-                     console.log("ERR", e);
+                    document.getElementById("error").style.display = "block";
                  });
              }
          });
+         stop_button.addEventListener("click", function(e) {
+           e.preventDefault();
+             if(server) {
+                 server.stop();
+                 document.getElementById("started").style.display = "none";
+                 document.getElementById("notstarted").style.display = "block";
+             }
+         });
+
+})();
     </script>
 </body>
 </html>
