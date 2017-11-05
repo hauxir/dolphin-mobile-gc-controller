@@ -25,6 +25,9 @@ html, body{
     box-shadow: none !important;
     filter: none !important;
 }
+.server-triggered {
+  background-color: #7fff00 !important;
+}
 #controller {
     position: relative
     padding: 0;
@@ -40,7 +43,7 @@ html, body{
     margin: 0 auto;
     display: block;
 }
-#buttons div, #mainpad, #cpad{
+#buttons div, #main, #c{
     position: absolute;
     box-shadow: 5px 5px 2.5px black;
     font-size:16pt;
@@ -48,11 +51,11 @@ html, body{
     justify-content: center;
     align-items: center;
 }
-#cpad {
+#c{
     border-radius: 100%;
     background-color: #f8e644;
 }
-#mainpad {
+#main {
     background-color:#B5B3C0;
     border-radius:100%;
 }

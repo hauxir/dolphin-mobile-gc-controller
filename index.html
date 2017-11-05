@@ -6,19 +6,27 @@
     <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
 iframe {
-    width:40%;
-    display:inline-block;
+    width:100%;
+    display:inline;
+    padding:0;
+        margin:0;
 }
 #controllers {
     margin-top:10px;
+    padding: 0;
     width:100%;
     display:block;
-        text-align:center;
+    text-align:center;
+}
+#controllers > div {
+    width:49%;
+    display:inline-block;
+
 }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <span id="notstarted">
         <form>
             <h2>
@@ -45,16 +53,34 @@ iframe {
             <h2>Server started on <a href="" id="hoststring"></a></h2>
             <input type="button" class="form-control btn-primary" id="stop" value="Stop Server"/>
             <div id="controllers">
-            <iframe src="web/index.html#1" frameBorder="0"></iframe>
-            <iframe src="web/index.html#2" frameBorder="0"></iframe>
-            <iframe src="web/index.html#3" frameBorder="0"></iframe>
-            <iframe src="web/index.html#4" frameBorder="0"></iframe>
+                <div id="controller1">
+                    <a></a>
+                    <iframe frameBorder="0"></iframe>
+                </div>
+                <div id="controller2">
+                    <a></a>
+                    <iframe frameBorder="0"></iframe>
+                </div>
+                <div id="controller3">
+                    <a></a>
+                    <iframe frameBorder="0"></iframe>
+                </div>
+                <div id="controller4">
+                    <a></a>
+                    <iframe frameBorder="0"></iframe>
+                </div>
             </div>
         </span>
     </div>
     <script>
+var open = require("open");
+function openLinkInBrowser(e) {
+    e.preventDefault();
+    open(e.target.href)
+}
 (function() {
          document.getElementById("started").style.display = "none";
+         document.getElementById("hoststring").onclick = openLinkInBrowser;
          document.getElementById("error").style.display = "none";
          var _startServer = require('./server.js');
          var start_button = document.getElementById("start");
@@ -63,14 +89,39 @@ iframe {
          start_button.addEventListener("click", function(e) {
            e.preventDefault();
            var port = document.getElementById("port").value;
+           var buttons = Array.from(document.querySelectorAll("#buttons div"));
              if(!isNaN(parseInt(port))) {
                  server = _startServer(port, function(host, port) {
+                     var host_url = "http://" + host + ":" + port;
                      document.getElementById("notstarted").style.display = "none";
                      document.getElementById("error").style.display = "none";
                      document.getElementById("started").style.display = "block";
-                     document.getElementById("hoststring").innerHTML = "http://" + host + ":" + port;
+                     var hoststring = document.getElementById("hoststring");
+                     hoststring.innerHTML = hoststring.href = host_url;
+                     for(var i=1;i<5;i++) {
+                         var el = document.getElementById("controller" + i).querySelectorAll("a")[0];
+                         var iframe = document.getElementById("controller" + i).querySelectorAll("iframe")[0];
+                         el.href = el.innerHTML = iframe.src = host_url + "/#" + i;
+                         el.onclick = openLinkInBrowser;
+                     }
                  }, function(e) {
                     document.getElementById("error").style.display = "block";
+                 }, function(ctrl) {
+                     var iframe = document.getElementById(
+                         "controller" + ctrl.controller
+                     ).querySelectorAll("iframe")[0];
+                     var el = iframe.contentDocument.getElementById(ctrl.input_name);
+                     if(ctrl.action == 'press') {
+                        el.className = "server-triggered";
+                     } else if(ctrl.action == 'release') {
+                        el.className = "";
+                     } else if(ctrl.action == "set") {
+                         if(ctrl.value !== "0.5 0.5") {
+                            el.className = "server-triggered";
+                         } else {
+                            el.className = "";
+                         }
+                     }
                  });
              }
          });

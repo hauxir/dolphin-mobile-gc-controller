@@ -6,7 +6,7 @@ var stoppable = require("stoppable");
 var serveStatic = require("serve-static");
 var http = require("http");
 
-module.exports = function (port, successcb, errcb) {
+module.exports = function (port, successcb, errcb, ctrlcb) {
     var files = serveStatic("web", { index: ["index.html"] });
 
     var server = stoppable(http.createServer(function(request, response) {
@@ -32,27 +32,31 @@ module.exports = function (port, successcb, errcb) {
         var connection = request.accept();
         connection.on("message", function(message) {
             if (message.type === "utf8") {
-            var json = JSON.parse(message.utf8Data);
-            if(!(json.action && json.input_name)) return;
-            var input_string = json.action + " " + json.input_name;
-            if (json.value) {
-                input_string = input_string + " " + json.value;
-            }
-            var process = exec(
-                "echo '" +
-                input_string.toUpperCase() +
-                "' > '" +
-                os.homedir() +
-                "/Library/Application Support/Dolphin/Pipes/ctrl" +
-                json.controller +
-                "'"
-            );
-            process.stdout.on("data", function(data) {
-                console.log(data);
-            });
-            process.stderr.on("data", function(data) {
-                console.log(data);
-            });
+                var json = JSON.parse(message.utf8Data);
+                if(!(json.action && json.input_name)) return;
+                var input_string = json.action + " " + json.input_name;
+                if (json.value) {
+                    input_string = input_string + " " + json.value;
+                }
+                var process = exec(
+                    "echo '" +
+                    input_string.toUpperCase() +
+                    "' > '" +
+                    os.homedir() +
+                    "/Library/Application Support/Dolphin/Pipes/ctrl" +
+                    json.controller +
+                    "'"
+                );
+                try {
+                    process.stdout.on("data", function(data) {
+                        console.log(data);
+                    });
+                    process.stderr.on("data", function(data) {
+                        console.log(data);
+                    });
+                } catch(e) {
+                }
+                ctrlcb && ctrlcb(json);
             }
         });
     });

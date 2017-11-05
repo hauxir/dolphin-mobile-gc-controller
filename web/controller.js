@@ -210,7 +210,7 @@
 
   init_pad(
     "main",
-    document.getElementById("mainpad"),
+    document.getElementById("main"),
     MAINPAD_CENTER_X,
     MAINPAD_CENTER_Y,
     MAINPAD_RADIUS,
@@ -220,7 +220,7 @@
 
   init_pad(
     "c",
-    document.getElementById("cpad"),
+    document.getElementById("c"),
     CPAD_CENTER_X,
     CPAD_CENTER_Y,
     CPAD_RADIUS,

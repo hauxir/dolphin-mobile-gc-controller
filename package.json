@@ -15,6 +15,7 @@
     "ip": "^1.1.5",
     "serve-static": "^1.13.1",
     "stoppable": "^1.0.4",
-    "websocket": "^1.0.25"
+    "websocket": "^1.0.25",
+    "open": "*"
   }
 }
