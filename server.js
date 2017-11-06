@@ -45,17 +45,15 @@ module.exports = function (port, successcb, errcb, ctrlcb) {
                     os.homedir() +
                     "/Library/Application Support/Dolphin/Pipes/ctrl" +
                     json.controller +
-                    "'"
+                    "'",
+                    {timeout: 1000}
                 );
-                try {
-                    process.stdout.on("data", function(data) {
-                        console.log(data);
-                    });
-                    process.stderr.on("data", function(data) {
-                        console.log(data);
-                    });
-                } catch(e) {
-                }
+                process.stdout.on("data", function(data) {
+                    console.log(data);
+                });
+                process.stderr.on("data", function(data) {
+                    console.log(data);
+                });
                 ctrlcb && ctrlcb(json);
             }
         });

@@ -10,12 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "bootswatch": "^4.0.0-beta.2",
     "electron": "^1.7.9",
     "finalhandler": "^1.1.0",
     "ip": "^1.1.5",
+    "open": "*",
     "serve-static": "^1.13.1",
     "stoppable": "^1.0.4",
-    "websocket": "^1.0.25",
-    "open": "*"
+    "websocket": "^1.0.25"
   }
 }

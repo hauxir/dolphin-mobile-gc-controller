@@ -46,7 +46,7 @@ html, body{
 #buttons div, #main, #c{
     position: absolute;
     box-shadow: 5px 5px 2.5px black;
-    font-size:16pt;
+    font-size: 3vmax;
     display: flex;
     justify-content: center;
     align-items: center;
