@@ -17,3 +17,10 @@ npm start
 Default port: 1889
 
 Choose the GameCube Controller port by appending /#1 /#2 /#3 /#4 to the host URL
+
+## WIP: Electron APP
+```
+npm run app
+```
+<img width="797" alt="screen shot 2018-02-24 at 00 54 58" src="https://user-images.githubusercontent.com/2439255/36622460-7f35186a-18fd-11e8-9fdc-8d4f2de6eb98.png">
+<img width="798" alt="screen shot 2018-02-24 at 00 55 33" src="https://user-images.githubusercontent.com/2439255/36622474-96d6d3dc-18fd-11e8-9eb3-185cb66ccc69.png">
