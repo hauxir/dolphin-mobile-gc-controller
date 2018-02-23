@@ -15,3 +15,5 @@ npm install
 npm start
 ```
 Default port: 1889
+
+Choose the GameCube Controller port by appending /#1 /#2 /#3 /#4 to the host URL
